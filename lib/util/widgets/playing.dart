@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:lyrion/util/audio/handler.dart';
@@ -114,18 +117,18 @@ class _NowPlayingState extends State<NowPlaying>
                           //TODO: Bytes Source is NOT implemented for iOS - Change to UrlSource
 
                           //Song URL
-                          final songBytes =
-                              await YouTubeAudio.audioStreamAsBytes(
+                          final song = await YouTubeAudio.audioStreamAsURI(
                             youtubeID: nowPlaying!.youtubeID,
                           );
 
                           //Play or Pause Song
-                          final player = await AudioPlayerManager.playFromBytes(
+                          final player =
+                              await AudioPlayerManager.playFromURLiOS(
                             name: nowPlaying!.name,
-                            bytes: songBytes,
+                            uri: song,
                           );
 
-                          player.eventStream.listen((event) {
+                          player.playerStateStream.listen((event) {
                             print(event);
                           });
                         },

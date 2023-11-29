@@ -1,6 +1,6 @@
-import 'dart:typed_data';
-
+import 'package:http/http.dart' as http;
 import 'package:audioplayers/audioplayers.dart';
+import 'package:just_audio/just_audio.dart' as just_audio;
 
 class AudioPlayerManager {
   static final Map<String, AudioPlayer> _players = {};
@@ -9,12 +9,12 @@ class AudioPlayerManager {
   static AudioPlayer getPlayer(String playerID) {
     return _players.putIfAbsent(
       playerID,
-      () => AudioPlayer(playerId: playerID),
+      () => AudioPlayer(),
     );
   }
 
   ///Check Playing Status
-  static Future<bool> checkIfPlaying({required String playerID}) async {
+  static bool checkIfPlaying({required String playerID}) {
     //Player
     final player = getPlayer(playerID);
 
@@ -25,34 +25,62 @@ class AudioPlayerManager {
     return playingStatus == PlayerState.playing;
   }
 
-  ///Play from URL
+  ///Play from URL using just_audio
   static Future<AudioPlayer> playFromURL({
     required String name,
-    required String url,
+    required Uri uri,
   }) async {
     //Audio Player
     final audioPlayer = getPlayer(name);
 
-    //Play Audio - via URL
-    await audioPlayer.play(UrlSource(url), volume: 1.0);
+    //Play
+    await audioPlayer.play(UrlSource(uri.toString()));
 
     //Return Player
     return audioPlayer;
   }
 
-  ///Play from Bytes
-  static Future<AudioPlayer> playFromBytes({
+  ///Play from URL (iOS)
+  static Future<just_audio.AudioPlayer> playFromURLiOS({
     required String name,
-    required Uint8List bytes,
+    required Uri uri,
   }) async {
     //Audio Player
-    final audioPlayer = getPlayer(name);
+    final audioPlayer = just_audio.AudioPlayer();
 
-    //Play Audio - via URL
-    await audioPlayer.play(BytesSource(bytes), volume: 1.0);
+    //Set Stream URL
+    await audioPlayer.setUrl(uri.toString());
+
+    //Play
+    await audioPlayer.play();
 
     //Return Player
     return audioPlayer;
+  }
+
+  ///Play Web Stream
+  static Future<AudioPlayer> playWebStream({
+    required String name,
+    required Uri uri,
+  }) async {
+    //Response
+    final response = await http.get(uri);
+
+    if (response.statusCode == 200) {
+      //Stream Bytes
+      final streamBytes = response.bodyBytes;
+
+      //Audio Player
+      final audioPlayer = AudioPlayer();
+
+      //Play
+      audioPlayer.play(BytesSource(streamBytes));
+
+      //Return Player
+      return audioPlayer;
+    } else {
+      throw Exception("Failed to Load WebM Stream");
+    }
   }
 
   ///Set AudioPlayer Volume
@@ -88,7 +116,9 @@ class AudioPlayerManager {
     final player = _players[playerID];
 
     if (player != null) {
-      player.setReleaseMode(loopStatus ? ReleaseMode.loop : ReleaseMode.stop);
+      player.setReleaseMode(
+        loopStatus ? ReleaseMode.loop : ReleaseMode.release,
+      );
     }
   }
 }

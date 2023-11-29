@@ -7,9 +7,27 @@ class YouTubeAudio {
   ///YouTube Client
   static final YoutubeExplode _youtube = YoutubeExplode();
 
+  ///Get Audio Stream as URI
+  static Future<Uri> audioStreamAsURI({
+    required String youtubeID,
+  }) async {
+    //Stream Manifest
+    final manifest = await _youtube.videos.streamsClient.getManifest(youtubeID);
+
+    //Highest Quality
+    final highQualityStream = manifest.audioOnly.withHighestBitrate();
+
+    //Stream URI
+    final uri = highQualityStream.url;
+
+    //Return Stream URI
+    return uri;
+  }
+
   ///Get Audio Stream as Bytes by `youtubeID`
-  static Future<Uint8List> audioStreamAsBytes(
-      {required String youtubeID}) async {
+  static Future<Uint8List> audioStreamAsBytes({
+    required String youtubeID,
+  }) async {
     //Stream Manifest
     final manifest = await _youtube.videos.streamsClient.getManifest(youtubeID);
 
