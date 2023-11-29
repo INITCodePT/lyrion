@@ -11,7 +11,8 @@ class NowPlaying extends StatefulWidget {
   State<NowPlaying> createState() => _NowPlayingState();
 }
 
-class _NowPlayingState extends State<NowPlaying> {
+class _NowPlayingState extends State<NowPlaying>
+    with SingleTickerProviderStateMixin {
   ///Current Song
   Song? nowPlaying;
 
@@ -107,10 +108,15 @@ class _NowPlayingState extends State<NowPlaying> {
                             playingState = !(playingState ?? false);
                           });
                         },
-                        icon: Icon(
-                          playingState ?? false
-                              ? Ionicons.ios_pause
-                              : Ionicons.ios_play,
+                        icon: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 80),
+                          child: Icon(
+                            playingState ?? false
+                                ? FontAwesome5Solid.pause
+                                : FontAwesome5Solid.play,
+                            size: 24.0,
+                            key: ValueKey<bool>(playingState ?? false),
+                          ),
                         ),
                       ),
                     ],
