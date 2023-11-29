@@ -14,12 +14,16 @@ class Song {
   ///Length
   final int length;
 
+  ///YouTube ID
+  final String youtubeID;
+
   ///Song
   Song({
     required this.image,
     required this.name,
     required this.artist,
     required this.length,
+    required this.youtubeID,
   });
 
   ///`Song` from JSON
@@ -29,6 +33,7 @@ class Song {
       name: json["name"],
       artist: Artist.fromJSON(json["artist"]),
       length: json["length"],
+      youtubeID: json["youtubeID"],
     );
   }
 
@@ -39,6 +44,7 @@ class Song {
       "name": name,
       "artist": artist.toJSON(),
       "length": length,
+      "youtubeID": youtubeID,
     };
   }
 }

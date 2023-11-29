@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
+import 'package:lyrion/util/audio/handler.dart';
+import 'package:lyrion/util/audio/youtube.dart';
 import 'package:lyrion/util/data/local.dart';
 import 'package:lyrion/util/models/artist.dart';
 import 'package:lyrion/util/models/song.dart';
@@ -42,6 +44,7 @@ class _NowPlayingState extends State<NowPlaying>
         ],
       ),
       length: 240000,
+      youtubeID: "cW8VLC9nnTo",
     ).toJSON();
 
     //Saved Current Song
@@ -103,9 +106,27 @@ class _NowPlayingState extends State<NowPlaying>
 
                       //Play & Pause
                       IconButton(
-                        onPressed: () {
+                        onPressed: () async {
                           setState(() {
                             playingState = !(playingState ?? false);
+                          });
+
+                          //TODO: Bytes Source is NOT implemented for iOS - Change to UrlSource
+
+                          //Song URL
+                          final songBytes =
+                              await YouTubeAudio.audioStreamAsBytes(
+                            youtubeID: nowPlaying!.youtubeID,
+                          );
+
+                          //Play or Pause Song
+                          final player = await AudioPlayerManager.playFromBytes(
+                            name: nowPlaying!.name,
+                            bytes: songBytes,
+                          );
+
+                          player.eventStream.listen((event) {
+                            print(event);
                           });
                         },
                         icon: AnimatedSwitcher(

@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:audioplayers/audioplayers.dart';
 
 class AudioPlayerManager {
@@ -38,15 +40,19 @@ class AudioPlayerManager {
     return audioPlayer;
   }
 
-  ///Extract Audio URL
-  static String extractAudioURL({required String audioHTML}) {
-    final startIndex = audioHTML.indexOf("play('");
-    final endIndex = audioHTML.indexOf(
-      ".mp3',",
-      startIndex + "play('".length,
-    );
+  ///Play from Bytes
+  static Future<AudioPlayer> playFromBytes({
+    required String name,
+    required Uint8List bytes,
+  }) async {
+    //Audio Player
+    final audioPlayer = getPlayer(name);
 
-    return audioHTML.substring(startIndex + "play('".length, endIndex);
+    //Play Audio - via URL
+    await audioPlayer.play(BytesSource(bytes), volume: 1.0);
+
+    //Return Player
+    return audioPlayer;
   }
 
   ///Set AudioPlayer Volume
